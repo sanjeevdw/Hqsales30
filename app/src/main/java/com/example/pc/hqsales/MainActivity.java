@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
         // OneSignal Initialization
         OneSignal.startInit(this)
                 .inFocusDisplaying(OneSignal.OSInFocusDisplayOption.Notification)
@@ -93,6 +94,13 @@ public class MainActivity extends AppCompatActivity {
             ButtonNetworkRequest(ramdomId);
             Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show();
         }
+
+            /** Show a toast from the web page */
+            @JavascriptInterface
+            public void showToastAuthRenew(String auth) {
+                launchNetworkRequest();
+                Toast.makeText(mContext, auth, Toast.LENGTH_SHORT).show();
+            }
     }
 
     private void launchNetworkRequest() {
