@@ -98,8 +98,9 @@ public class MainActivity extends AppCompatActivity {
             /** Show a toast from the web page */
             @JavascriptInterface
             public void showToastAuthRenew(String auth) {
-                launchNetworkRequest();
+                authNetworkRequest();
                 Toast.makeText(mContext, auth, Toast.LENGTH_SHORT).show();
+                sessionToken = session.getusertoken();
             }
     }
 
@@ -121,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                             String authToken = jsonObject.getString("auth_token");
                             session.setusertoken("");
                             session.setusertoken(tokenApi);
+                            sessionToken = session.getusertoken();
                             if (authToken.isEmpty()) {
                                 myWebView.loadUrl("http://hqsales.net/mobileappdev/makeadminlogin/");
                             } else if (!authToken.isEmpty()) {
@@ -146,7 +148,50 @@ public class MainActivity extends AppCompatActivity {
         };
         queue.add(stringRequest);
     }
-  
+
+    private void authNetworkRequest() {
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "http://hqsales.net/mobileappdev/api/providenowlogin.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            String jsonResponse = response.toString().trim();
+                            //   jsonResponse = jsonResponse.substring(3);
+                            JSONObject jsonObject = new JSONObject(jsonResponse);
+                            String status = jsonObject.getString("status");
+                            //   String deviceId = jsonObject.getString("device_id");
+                            String tokenApi = jsonObject.getString("token_api");
+                            String authToken = jsonObject.getString("auth_token");
+                            session.setusertoken("");
+                            session.setusertoken(tokenApi);
+                            sessionToken = session.getusertoken();
+                            if (!authToken.isEmpty()) {
+                                myWebView.loadUrl("http://hqsales.net/mobileappdev/adminarea/dashboard.php?auth_token="+authToken);
+                            }
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(getApplicationContext(), "Error Occurred", Toast.LENGTH_SHORT).show();
+            }
+
+        }) { @Override
+        protected Map<String, String> getParams() {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("device_id", android_id);
+            params.put("token_api", sessionToken);
+            return params;
+        }
+        };
+        queue.add(stringRequest);
+    }
+
     private void ButtonNetworkRequest(String ramdomId) {
         final String RandomId = ramdomId;
 
@@ -192,4 +237,5 @@ public class MainActivity extends AppCompatActivity {
         queue.add(stringRequest);
     }
 }
+
 
